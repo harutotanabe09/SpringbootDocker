@@ -1,0 +1,37 @@
+plugins {
+	id 'org.springframework.boot' version '2.5.2'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+	// docker plus
+	id 'com.palantir.docker' version '0.26.0'
+}
+
+group = 'docker'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+test {
+	useJUnitPlatform()
+}
+
+// jarの設定
+bootJar {
+	archiveFileName = "${archiveBaseName.get()}.${archiveExtension.get()}"
+}
+
+// docker fileの設定
+docker {
+	name "${bootJar.archiveBaseName.get()}:latest"
+	files bootJar.archiveFile.get()
+	dockerfile file('./Dockerfile')
+	buildArgs(['JAR_FILE': "${bootJar.archiveFileName.get()}"])
+}
